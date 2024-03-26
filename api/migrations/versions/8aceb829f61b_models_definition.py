@@ -27,9 +27,9 @@ def upgrade() -> None:
     CREATE TABLE IF NOT EXISTS
     repositories(
     id bigserial primary key,
-    repo varchar(512) unique not null,
+    repo varchar(512) not null,
     owner varchar(256) not null,
-    position_cur integer not null,
+    position_cur integer unique not null,
     position_prev integer default null,
     stars integer not null,
     watchers integer not null,
