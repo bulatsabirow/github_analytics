@@ -11,6 +11,7 @@ fastapi = {extras = ["sqlalchemy"], version = "^0.110.0"}
 asyncpg = "^0.29.0"
 uvicorn = "^0.29.0"
 alembic = "^1.13.1"
+pydantic-settings = "^2.2.1"
 
 
 [tool.poetry.group.dev.dependencies]
