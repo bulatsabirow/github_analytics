@@ -26,10 +26,9 @@ def upgrade() -> None:
             """
     CREATE TABLE IF NOT EXISTS
     repositories(
-    id bigserial primary key,
     repo varchar(512) not null,
     owner varchar(256) not null,
-    position_cur integer unique not null,
+    position_cur integer primary key,
     position_prev integer default null,
     stars integer not null,
     watchers integer not null,
@@ -45,12 +44,11 @@ def upgrade() -> None:
             """
     CREATE TABLE IF NOT EXISTS
     repo_analytics(
-    id bigserial primary key,
-    repo_id integer,
+    position integer primary key,
     date date not null,
     commits int not null,
     authors varchar(256)[],
-    foreign key(repo_id) references repositories(id) on delete cascade
+    foreign key(position) references repositories(position_cur) on delete cascade
     );
     """
         )
