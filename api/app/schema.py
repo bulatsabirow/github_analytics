@@ -24,6 +24,15 @@ class RepositoryAnalytics(BaseModel):
     authors: list[str]
 
 
-class RepositoryQueryParams(BaseModel):
-    sort: Literal[tuple(Repository.schema().get("properties").keys())] | None = Field(Query(default="position_cur"))
+class SortingQueryParams(BaseModel):
     order: Literal["asc", "desc"] | None = Field(Query(default="asc"))
+
+
+class RepositorySortingQueryParams(SortingQueryParams):
+    sort: Literal[tuple(Repository.schema().get("properties").keys())] | None = Field(Query(default="position_cur"))
+
+
+class RepositoryAnalyticsSortingQueryParams(SortingQueryParams):
+    since: datetime.date
+    until: datetime.date
+    sort: Literal["commits", "date"] | None = Field(Query(default="date"))

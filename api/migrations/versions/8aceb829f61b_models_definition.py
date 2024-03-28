@@ -44,10 +44,11 @@ def upgrade() -> None:
             """
     CREATE TABLE IF NOT EXISTS
     repo_analytics(
-    position integer primary key,
+    position integer,
     date date not null,
     commits int not null,
     authors varchar(256)[],
+    unique (position, date),
     foreign key(position) references repositories(position_cur) on delete cascade
     );
     """

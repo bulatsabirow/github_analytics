@@ -23,3 +23,9 @@ def get_repository_database_service(
     session: Annotated[AsyncSession, Depends(get_async_session)]
 ) -> RepositoryDatabaseService:
     return RepositoryDatabaseService(session)
+
+
+def get_repository_analytics_database_service(
+    session: Annotated[AsyncSession, Depends(get_async_session)]
+) -> RepositoryAnalyticsDatabaseService:
+    return RepositoryAnalyticsDatabaseService(session)
