@@ -8,9 +8,18 @@ from services import CommitDatabaseService, CommitsFetchService, RepositoriesDat
 from services.parser import GithubAPIRepositoriesParser, GithubAPICommitsAnalyticsParser
 from settings import GITHUB_TOKEN
 
+UNAUTHENTICATED_PAGINATION_LIMIT = 1
+AUTHENTICATED_PAGINATION_LIMIT = 41
+
 
 async def handler(event, context):
-    async with (async_session_maker() as db_session, db_session.begin(), ClientSession() as http_session):
+    auth_headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"} if GITHUB_TOKEN else {}
+
+    async with (
+        async_session_maker() as db_session,
+        db_session.begin(),
+        ClientSession(headers=auth_headers) as http_session,
+    ):
         repos_fetch_service = RepositoriesFetchService()
         repos_database_service = RepositoriesDatabaseService(db_session)
         github_repositories_parser = GithubAPIRepositoriesParser(
@@ -25,6 +34,7 @@ async def handler(event, context):
             database_service=commits_database_service,
             repositories=repositories,
             token=GITHUB_TOKEN,
+            session_factory=async_session_maker,
         )
         await github_commits_parser.parse(http_session)
 
@@ -32,23 +42,33 @@ async def handler(event, context):
 
 
 async def main():
-    async with (async_session_maker() as db_session, db_session.begin(), ClientSession() as http_session):
-        repos_fetch_service = RepositoriesFetchService()
-        repos_database_service = RepositoriesDatabaseService(db_session)
-        github_repositories_parser = GithubAPIRepositoriesParser(
-            fetch_service=repos_fetch_service, database_service=repos_database_service, token=GITHUB_TOKEN
-        )
-        repositories = await github_repositories_parser.parse(http_session)
+    auth_headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"} if GITHUB_TOKEN else {}
 
-        commits_fetch_service = CommitsFetchService()
-        commits_database_service = CommitDatabaseService(db_session)
-        github_commits_parser = GithubAPICommitsAnalyticsParser(
-            fetch_service=commits_fetch_service,
-            database_service=commits_database_service,
-            repositories=repositories,
-            token=GITHUB_TOKEN,
-        )
-        await github_commits_parser.parse(http_session)
+    async with (ClientSession(headers=auth_headers) as http_session):
+        async with async_session_maker() as db_session, db_session.begin():
+            repos_fetch_service = RepositoriesFetchService()
+            repos_database_service = RepositoriesDatabaseService(db_session)
+            github_repositories_parser = GithubAPIRepositoriesParser(
+                fetch_service=repos_fetch_service, database_service=repos_database_service, token=GITHUB_TOKEN
+            )
+            repositories = await github_repositories_parser.parse(http_session)
+            commits_database_service = CommitDatabaseService(db_session)
+            # truncate table 'repo_analytics' as data stored in it already irrelevant
+            await commits_database_service.truncate_table()
+
+        for page in range(1, AUTHENTICATED_PAGINATION_LIMIT if auth_headers else UNAUTHENTICATED_PAGINATION_LIMIT):
+            # retrieve data from GitHub API about commit statistics and
+            # load it into database after each pagination
+            async with async_session_maker() as db_session, db_session.begin():
+                commits_fetch_service = CommitsFetchService()
+                commits_database_service = CommitDatabaseService(db_session)
+                github_commits_parser = GithubAPICommitsAnalyticsParser(
+                    fetch_service=commits_fetch_service,
+                    database_service=commits_database_service,
+                    repositories=repositories,
+                    token=GITHUB_TOKEN,
+                )
+                await github_commits_parser.parse(http_session, page=page)
 
 
 if __name__ == "__main__":

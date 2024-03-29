@@ -1,9 +1,6 @@
 from typing import Type
 
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from core.db.queries import Query, SelectQuery, WhereQuery, OrderByQuery, JoinQuery
+from core.db.queries import Query, SelectQuery, WhereQuery, OrderByQuery, JoinQuery, FromQuery
 
 
 class QueryBuilder:
@@ -13,9 +10,12 @@ class QueryBuilder:
     def _execute_base_query(self, query: Type[Query], *args, **kwargs) -> "QueryBuilder":
         return self.__class__(_query=self._query + str(query(*args, **kwargs)))
 
-    def select(self, _from, *args) -> "QueryBuilder":
+    def select(self, *args) -> "QueryBuilder":
         self._query = ""
-        return self._execute_base_query(SelectQuery, _from, *args)
+        return self._execute_base_query(SelectQuery, *args)
+
+    def from_(self, _from):
+        return self._execute_base_query(FromQuery, _from)
 
     def where(self, **kwargs) -> "QueryBuilder":
         return self._execute_base_query(WhereQuery, **kwargs)
@@ -24,4 +24,7 @@ class QueryBuilder:
         return self._execute_base_query(OrderByQuery, **kwargs)
 
     def join(self, joined_table: str, on: str) -> "QueryBuilder":
-        return self._execute_base_query(JoinQuery, **{"joined_table": joined_table, "on": on})
+        return self._execute_base_query(JoinQuery, joined_table=joined_table, on=on)
+
+    def __repr__(self) -> str:
+        return self._query

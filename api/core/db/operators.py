@@ -25,3 +25,11 @@ class Equals(Operator):
 
     def __repr__(self):
         return "= %s" % self.value
+
+
+class Exists(Operator):
+    def __init__(self, subquery: str):
+        self.subquery = subquery
+
+    def __repr__(self):
+        return "EXISTS (%s)" % self.subquery

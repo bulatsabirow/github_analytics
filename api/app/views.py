@@ -1,7 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status, HTTPException
 
+from app.enums import ErrorCodes
 from app.repo import (
     RepositoryDatabaseService,
     get_repository_database_service,
@@ -34,6 +35,10 @@ async def repositories_activity_view(
     owner: str,
     repo: str,
 ):
+    if not await db_service.check_repository_exists(owner=owner, repo=repo):
+        # If repository with given credentials wasn't found, raise 404 error exception
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ErrorCodes.REPOSITORY_NOT_FOUND)
+
     return await db_service.fetch_repositories_analytics(
         owner=owner,
         repo=repo,

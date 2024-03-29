@@ -8,19 +8,26 @@ class Query:
     def __repr__(self) -> str:
         return NotImplemented
 
+    def __str__(self) -> str:
+        return repr(self)
+
 
 class SelectQuery(Query):
-    def __init__(self, table_name: str, *args):
+    def __init__(self, *args):
         self.arguments = args
-        self.table_name = table_name
 
     def __repr__(self) -> str:
-        print(f"{self.arguments=}")
-        if self.arguments == ("*",):
-            params = "*"
-        else:
-            params = ", ".join(self.arguments)
-        return "SELECT %(params)s FROM %(table)s" % {"table": self.table_name, "params": params}
+        params = ", ".join(map(str, self.arguments))
+
+        return "SELECT %s" % params
+
+
+class FromQuery(Query):
+    def __init__(self, _from: str):
+        self._from = _from
+
+    def __repr__(self) -> str:
+        return " FROM %s" % self._from
 
 
 class WhereQuery(Query):

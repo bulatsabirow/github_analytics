@@ -14,8 +14,7 @@ class BaseDatabaseService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def execute(self, query: QueryBuilder):
-        raw_results = await self.session.execute(text(query._query + ";"))
+    async def execute(self, query: QueryBuilder, mode: str = "all"):
+        raw_results = await self.session.execute(text(str(query) + ";"))
         query._query = ""
-
-        return raw_results.mappings().all()
+        return getattr(raw_results.mappings(), mode)()
