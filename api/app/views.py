@@ -8,8 +8,13 @@ from app.repo import (
     RepositoryAnalyticsDatabaseService,
     get_repository_analytics_database_service,
 )
-from app.schema import Repository, RepositorySortingQueryParams, RepositoryAnalyticsSortingQueryParams
-from core.repo import Between, Equals
+from app.schema import (
+    Repository,
+    RepositorySortingQueryParams,
+    RepositoryAnalyticsSortingQueryParams,
+    RepositoryAnalytics,
+)
+from core.db.operators import Between, Equals
 
 router = APIRouter(prefix="/api/repos", tags=["repos"])
 
@@ -19,25 +24,21 @@ async def repositories_list_view(
     db_service: Annotated[RepositoryDatabaseService, Depends(get_repository_database_service)],
     query_params: Annotated[RepositorySortingQueryParams, Depends()],
 ):
-    return await db_service.select_all().order_by(**{query_params.sort: query_params.order}).execute()
+    return await db_service.fetch_repositories(sort=query_params.sort, order=query_params.order)
 
 
-@router.get("/{owner}/{repo}/activity")
+@router.get("/{owner}/{repo}/activity", response_model=list[RepositoryAnalytics])
 async def repositories_activity_view(
     db_service: Annotated[RepositoryAnalyticsDatabaseService, Depends(get_repository_analytics_database_service)],
     query_params: Annotated[RepositoryAnalyticsSortingQueryParams, Depends()],
     owner: str,
     repo: str,
 ):
-    return (
-        await db_service.select_all()
-        .join(joined_table="repositories", on=f"{db_service.table_name}.position = repositories.position_cur")
-        .where(
-            **{
-                "repo": Equals(f'\'{"/".join([owner, repo])}\''),
-                "date": Between(f"'{query_params.since}'", f"'{query_params.until}'"),
-            }
-        )
-        .order_by(**{query_params.sort: query_params.order})
-        .execute()
+    return await db_service.fetch_repositories_analytics(
+        owner=owner,
+        repo=repo,
+        sort=query_params.sort,
+        order=query_params.order,
+        since=query_params.since,
+        until=query_params.until,
     )
