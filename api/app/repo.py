@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schema import Repository, RepositoryAnalytics
@@ -14,6 +15,29 @@ from core.db.utils import wrap_string_into_single_quotes
 class RepositoryDatabaseService(BaseDatabaseService):
     table_name = "repositories"
     pydantic_model = Repository
+
+    async def create_table(self):
+        create_table_query = """
+            CREATE TABLE IF NOT EXISTS
+    repositories(
+    repo varchar(512) not null,
+    owner varchar(256) not null,
+    position_cur integer primary key,
+    position_prev integer default null,
+    stars integer not null,
+    watchers integer not null,
+    forks integer not null,
+    open_issues integer not null,
+    language varchar(128)
+    )
+        """
+        await self.session.execute(text(create_table_query))
+
+    async def drop_table(self, is_cascade=True):
+        drop_table_query = f"""
+    DROP TABLE IF EXISTS repositories {'CASCADE' if is_cascade else ''};
+    """
+        await self.session.execute(text(drop_table_query))
 
     async def fetch_repositories(self, sort, order):
         query = QueryBuilder().select("*").from_(self.table_name).order_by(**{sort: order})

@@ -1,4 +1,4 @@
-from typing import Optional, ClassVar
+from typing import Optional, ClassVar, Union
 
 from pydantic import BaseModel
 from sqlalchemy import text
@@ -14,7 +14,12 @@ class BaseDatabaseService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def execute(self, query: QueryBuilder, mode: str = "all"):
+    async def execute(self, query: Union[QueryBuilder, str], mode: str = "all"):
         raw_results = await self.session.execute(text(str(query) + ";"))
-        query._query = ""
-        return getattr(raw_results.mappings(), mode)()
+
+        try:
+            query._query = ""
+        except AttributeError:
+            pass
+        finally:
+            return getattr(raw_results.mappings(), mode)()

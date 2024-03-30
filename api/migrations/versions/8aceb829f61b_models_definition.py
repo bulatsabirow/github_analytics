@@ -20,7 +20,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     connection = op.get_bind()
-
     connection.execute(
         text(
             """
