@@ -42,9 +42,6 @@ class RepositoriesFetchService(BaseFetchService):
 
 class CommitsFetchService(BaseFetchService):
     base_url = "https://api.github.com/repos/%s/commits?%s"
-    lock = asyncio.Lock()
 
     async def fetch_resource(self, session: ClientSession, url: str):
-        async with self.lock:
-            await asyncio.sleep(DELAY)
-            return await super().fetch_resource(session, url)
+        return await super().fetch_resource(session, url)

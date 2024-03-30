@@ -8,40 +8,12 @@ from services import CommitDatabaseService, CommitsFetchService, RepositoriesDat
 from services.parser import GithubAPIRepositoriesParser, GithubAPICommitsAnalyticsParser
 from settings import GITHUB_TOKEN
 
+# maximum pages count for each repository which will be parsed
 UNAUTHENTICATED_PAGINATION_LIMIT = 1
 AUTHENTICATED_PAGINATION_LIMIT = 41
 
 
 async def handler(event, context):
-    auth_headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"} if GITHUB_TOKEN else {}
-
-    async with (
-        async_session_maker() as db_session,
-        db_session.begin(),
-        ClientSession(headers=auth_headers) as http_session,
-    ):
-        repos_fetch_service = RepositoriesFetchService()
-        repos_database_service = RepositoriesDatabaseService(db_session)
-        github_repositories_parser = GithubAPIRepositoriesParser(
-            fetch_service=repos_fetch_service, database_service=repos_database_service, token=GITHUB_TOKEN
-        )
-        repositories = await github_repositories_parser.parse(http_session)
-
-        commits_fetch_service = CommitsFetchService()
-        commits_database_service = CommitDatabaseService(db_session)
-        github_commits_parser = GithubAPICommitsAnalyticsParser(
-            fetch_service=commits_fetch_service,
-            database_service=commits_database_service,
-            repositories=repositories,
-            token=GITHUB_TOKEN,
-            session_factory=async_session_maker,
-        )
-        await github_commits_parser.parse(http_session)
-
-        return {"statusCode": http.HTTPStatus.OK}
-
-
-async def main():
     auth_headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"} if GITHUB_TOKEN else {}
 
     async with (ClientSession(headers=auth_headers) as http_session):
@@ -58,7 +30,7 @@ async def main():
 
         for page in range(1, AUTHENTICATED_PAGINATION_LIMIT if auth_headers else UNAUTHENTICATED_PAGINATION_LIMIT):
             # retrieve data from GitHub API about commit statistics and
-            # load it into database after each pagination
+            # load it into database on each iteration
             async with async_session_maker() as db_session, db_session.begin():
                 commits_fetch_service = CommitsFetchService()
                 commits_database_service = CommitDatabaseService(db_session)
@@ -70,6 +42,4 @@ async def main():
                 )
                 await github_commits_parser.parse(http_session, page=page)
 
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        return {"statusCode": http.HTTPStatus.OK}
