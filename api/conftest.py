@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-from app.repo import RepositoryDatabaseService
+from app.repo import RepositoryDatabaseService, RepositoryAnalyticsDatabaseService
 from core.db import get_async_session
 from main import app
 
@@ -31,10 +31,12 @@ def event_loop():
 
 async def create_tables(session: AsyncSession):
     await RepositoryDatabaseService(session).create_table()
+    await RepositoryAnalyticsDatabaseService(session).create_table()
 
 
 async def drop_tables(session: AsyncSession):
     await RepositoryDatabaseService(session).drop_table(is_cascade=False)
+    await RepositoryAnalyticsDatabaseService(session).drop_table(is_cascade=False)
 
 
 @pytest.fixture
@@ -44,6 +46,7 @@ async def test_session():
         await create_tables(test_session)
         await test_session.commit()
         yield test_session
+
         # __exit__ - drop test tables and close session
         await drop_tables(test_session)
         await test_session.commit()

@@ -74,6 +74,25 @@ class RepositoryAnalyticsDatabaseService(BaseDatabaseService):
         )
         return await self.execute(query)
 
+    async def create_table(self):
+        create_table_query = """
+    CREATE TABLE IF NOT EXISTS
+    repo_analytics(
+    position integer,
+    date date not null,
+    commits int not null,
+    unique (position, date),
+    foreign key(position) references repositories(position_cur) on delete cascade
+    );
+        """
+        await self.session.execute(text(create_table_query))
+
+    async def drop_table(self, is_cascade=True):
+        drop_table_query = f"""
+        DROP TABLE IF EXISTS repo_analytics {'CASCADE' if is_cascade else ''};
+        """
+        await self.session.execute(text(drop_table_query))
+
 
 def get_repository_database_service(
     session: Annotated[AsyncSession, Depends(get_async_session)]
