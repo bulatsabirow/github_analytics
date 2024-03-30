@@ -31,12 +31,10 @@ def event_loop():
 
 async def create_tables(session: AsyncSession):
     await RepositoryDatabaseService(session).create_table()
-    await RepositoryAnalyticsDatabaseService(session).create_table()
 
 
 async def drop_tables(session: AsyncSession):
     await RepositoryDatabaseService(session).drop_table(is_cascade=False)
-    await RepositoryAnalyticsDatabaseService(session).drop_table(is_cascade=False)
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def clean_data(func):
+def validate_data(func):
     """
     Cleans raw data and checks their presence.
     If there's no any data, just returns None.
@@ -55,7 +55,7 @@ class RepositoriesDatabaseService(BaseDatabaseService):
     def clean_raw_data(self, raw_data):
         return [self.clean_item(item, pos=pos) for pos, item in enumerate(raw_data, start=1)]
 
-    @clean_data
+    @validate_data
     async def bulk_insert(self, data: list[dict[str, Any]]):
         """
         Inserts data into the table 'repositories' as follows:
@@ -127,7 +127,7 @@ class CommitDatabaseService(BaseDatabaseService):
     async def truncate_table(self):
         await self.session.execute(text("TRUNCATE TABLE repo_analytics;"))
 
-    @clean_data
+    @validate_data
     async def bulk_insert(self, data: list[dict[str, Any]]):
         """
         Inserts data into the table 'repo_analytics' as follows:

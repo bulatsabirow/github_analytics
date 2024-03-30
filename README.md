@@ -74,7 +74,7 @@ RESTful API приложение должно быть обернуто в *dock
     `
 7. Запуск сервера для разработки на http://localhost:8000:
     `
-    uvicorn main:app --reload
+    cd api && uvicorn main:app --reload
     `
 
 ---

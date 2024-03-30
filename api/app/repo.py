@@ -4,6 +4,12 @@ from fastapi import Depends
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.consts import (
+    CREATE_REPOSITORIES_TABLE_QUERY,
+    DROP_REPOSITORIES_TABLE_QUERY,
+    CREATE_REPOSITORY_ANALYTICS_TABLE_QUERY,
+    DROP_REPOSITORY_ANALYTICS_TABLE_QUERY,
+)
 from app.schema import Repository, RepositoryAnalytics
 from core.db import get_async_session
 from core.db.operators import Equals, Between, Exists
@@ -17,26 +23,11 @@ class RepositoryDatabaseService(BaseDatabaseService):
     pydantic_model = Repository
 
     async def create_table(self):
-        create_table_query = """
-            CREATE TABLE IF NOT EXISTS
-    repositories(
-    repo varchar(512) not null,
-    owner varchar(256) not null,
-    position_cur integer primary key,
-    position_prev integer default null,
-    stars integer not null,
-    watchers integer not null,
-    forks integer not null,
-    open_issues integer not null,
-    language varchar(128)
-    )
-        """
-        await self.session.execute(text(create_table_query))
+        create_table_query = CREATE_REPOSITORIES_TABLE_QUERY
+        await self.session.execute(text(create_table_query + ";"))
 
     async def drop_table(self, is_cascade=True):
-        drop_table_query = f"""
-    DROP TABLE IF EXISTS repositories {'CASCADE' if is_cascade else ''};
-    """
+        drop_table_query = DROP_REPOSITORIES_TABLE_QUERY + f"{'CASCADE' if is_cascade else ''};"
         await self.session.execute(text(drop_table_query))
 
     async def fetch_repositories(self, sort, order):
@@ -73,25 +64,6 @@ class RepositoryAnalyticsDatabaseService(BaseDatabaseService):
             .order_by(**{sort: order})
         )
         return await self.execute(query)
-
-    async def create_table(self):
-        create_table_query = """
-    CREATE TABLE IF NOT EXISTS
-    repo_analytics(
-    position integer,
-    date date not null,
-    commits int not null,
-    unique (position, date),
-    foreign key(position) references repositories(position_cur) on delete cascade
-    );
-        """
-        await self.session.execute(text(create_table_query))
-
-    async def drop_table(self, is_cascade=True):
-        drop_table_query = f"""
-        DROP TABLE IF EXISTS repo_analytics {'CASCADE' if is_cascade else ''};
-        """
-        await self.session.execute(text(drop_table_query))
 
 
 def get_repository_database_service(
