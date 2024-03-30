@@ -10,6 +10,7 @@ from settings import GITHUB_TOKEN
 
 # maximum pages count for each repository which will be parsed
 UNAUTHENTICATED_PAGINATION_LIMIT = 2
+# value '41' was chosen to ensure that GitHub won't block account
 AUTHENTICATED_PAGINATION_LIMIT = 41
 
 
