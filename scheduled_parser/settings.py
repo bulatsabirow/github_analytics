@@ -1,5 +1,8 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 DB_USER = os.environ.get("DB_USER", "postgres")

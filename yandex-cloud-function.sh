@@ -8,16 +8,20 @@ export SERVICE_ACCOUNT=$(yc iam service-account create \
   --name service-account-for-cf \
   --description 'Github API parsing service account' \
   --format json | jq -r .)
-# $FOLDER_ID environment variable can be defined the following way:
+
+# $FOLDER_ID and $SERVICE_ACCOUNT_ID environment variables can be defined the following way:
 # $FOLDER_ID: yc resource-manager folder list
+# $SERVICE_ACCOUNT_ID: yc
 yc resource-manager folder add-access-binding $FOLDER_ID \
   --subject serviceAccount:$SERVICE_ACCOUNT_ID \
   --role editor
+
 # define serverless cloud function
 yc serverless function create --name github-api-parser
 
-# packing project into .zip file to obey Yandex Cloud requirements
-zip -j github_api_parser.zip scheduled_parser/*
+# packing project into .zip file to follow Yandex Cloud requirements
+cd scheduled_parser && zip github_api_parser.zip ./ -r -i '*.py' 'services/*.py' 'requirements.txt'
+
 # create serverless cloud function
 yc serverless function version create \
   --function-name github-api-parser \
@@ -34,6 +38,7 @@ yc serverless function version create \
   --environment DB_PORT=$DB_PORT \
   --environment DB_NAME=$DB_NAME
 
+# create timer trigger
 yc serverless trigger create timer \
   --name github-api-parser-timer-trigger \
   --cron-expression '0 * ? * * *' \
