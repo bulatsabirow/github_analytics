@@ -306,3 +306,4 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all,linux,venv,git
 scheduled_parser
 scheduled_parser/**
+yandex-cloud-function.sh

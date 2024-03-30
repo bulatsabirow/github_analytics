@@ -9,7 +9,7 @@ from services.parser import GithubAPIRepositoriesParser, GithubAPICommitsAnalyti
 from settings import GITHUB_TOKEN
 
 # maximum pages count for each repository which will be parsed
-UNAUTHENTICATED_PAGINATION_LIMIT = 1
+UNAUTHENTICATED_PAGINATION_LIMIT = 2
 AUTHENTICATED_PAGINATION_LIMIT = 41
 
 

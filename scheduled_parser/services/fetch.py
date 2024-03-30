@@ -1,17 +1,7 @@
 import asyncio
-import os
 from typing import ClassVar
 
 from aiohttp import ClientSession
-
-"""
-Github API requests limit for authenticated users is 5000 requests per hour.
-Github API requests limit for unauthenticated users is 60 requests per hour.
-Yandex Serverless Cloud Function max timeout interval is 10 minutes, so need to produce maximum allowed requests count
-for 10 minutes, delay between requests can be calculated as 600 seconds / 5000 = 0.12 seconds
- and 600 seconds / 60 = 10 seconds.
-"""
-DELAY = 0.12 if os.environ.get("GITHUB_TOKEN") else 10
 
 
 class BaseFetchService:

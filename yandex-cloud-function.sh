@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 # install required dependencies
-sudo apt install jq
 sudo apt install zip
 
-# define required environment variables
-export SERVICE_ACCOUNT=$(yc iam service-account create \
-  --name service-account-for-cf \
-  --description 'Github API parsing service account' \
-  --format json | jq -r .)
-
-# $FOLDER_ID and $SERVICE_ACCOUNT_ID environment variables can be defined the following way:
+# $FOLDER_ID and $SERVICE_ACCOUNT_ID environment variables can be defined as follows:
 # $FOLDER_ID: yc resource-manager folder list
-# $SERVICE_ACCOUNT_ID: yc
+# $SERVICE_ACCOUNT_ID: yc iam service-account list
+
+# assign role 'editor' to created service account
 yc resource-manager folder add-access-binding $FOLDER_ID \
   --subject serviceAccount:$SERVICE_ACCOUNT_ID \
   --role editor
