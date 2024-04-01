@@ -1,5 +1,7 @@
 from typing import Any
 
+from core.db.security import EscapeSQLQueryMetaClass
+
 
 class Operator:
     """
@@ -10,7 +12,15 @@ class Operator:
         return NotImplemented
 
 
-class Between(Operator):
+class EscapedOperator(Operator, metaclass=EscapeSQLQueryMetaClass):
+    """
+    SQL operator supporting expressions with escaped parameters
+    """
+
+    pass
+
+
+class Between(EscapedOperator):
     def __init__(self, start: Any, end: Any):
         self.start = start
         self.end = end
@@ -19,7 +29,7 @@ class Between(Operator):
         return "BETWEEN %s AND %s" % (self.start, self.end)
 
 
-class Equals(Operator):
+class Equals(EscapedOperator):
     def __init__(self, value: Any):
         self.value = value
 

@@ -14,8 +14,8 @@ class BaseDatabaseService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def execute(self, query: Union[QueryBuilder, str], mode: str = "all"):
-        raw_results = await self.session.execute(text(str(query) + ";"))
+    async def execute(self, query: Union[QueryBuilder, str], mode: str = "all", **kwargs):
+        raw_results = await self.session.execute(text(str(query) + ";"), kwargs)
 
         try:
             query._query = ""

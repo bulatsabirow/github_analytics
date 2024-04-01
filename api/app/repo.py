@@ -7,15 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.consts import (
     CREATE_REPOSITORIES_TABLE_QUERY,
     DROP_REPOSITORIES_TABLE_QUERY,
-    CREATE_REPOSITORY_ANALYTICS_TABLE_QUERY,
-    DROP_REPOSITORY_ANALYTICS_TABLE_QUERY,
 )
 from app.schema import Repository, RepositoryAnalytics
 from core.db import get_async_session
 from core.db.operators import Equals, Between, Exists
 from core.db.query_builders import QueryBuilder
 from core.db.repo import BaseDatabaseService
-from core.db.utils import wrap_string_into_single_quotes
 
 
 class RepositoryDatabaseService(BaseDatabaseService):
@@ -41,14 +38,9 @@ class RepositoryAnalyticsDatabaseService(BaseDatabaseService):
 
     async def check_repository_exists(self, owner, repo):
         query = QueryBuilder().select(
-            Exists(
-                QueryBuilder()
-                .select("1")
-                .from_("repositories")
-                .where(repo=Equals(wrap_string_into_single_quotes("/".join([owner, repo]))))
-            )
+            Exists(QueryBuilder().select("1").from_("repositories").where(repo=Equals("repo")))
         )
-        result = await self.execute(query, mode="one")
+        result = await self.execute(query, mode="one", repo="/".join([owner, repo]))
         return result.get("exists")
 
     async def fetch_repositories_analytics(self, owner, repo, since, until, sort, order):
@@ -58,12 +50,12 @@ class RepositoryAnalyticsDatabaseService(BaseDatabaseService):
             .from_(self.table_name)
             .join(joined_table="repositories", on=f"{self.table_name}.position = repositories.position_cur")
             .where(
-                repo=Equals(wrap_string_into_single_quotes("/".join([owner, repo]))),
-                date=Between(wrap_string_into_single_quotes(since), wrap_string_into_single_quotes(until)),
+                repo=Equals("repo"),
+                date=Between("since", "until"),
             )
             .order_by(**{sort: order})
         )
-        return await self.execute(query)
+        return await self.execute(query, repo="/".join([owner, repo]), since=since, until=until)
 
 
 def get_repository_database_service(
