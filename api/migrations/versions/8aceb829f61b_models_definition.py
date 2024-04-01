@@ -15,6 +15,7 @@ from app.consts import (
     CREATE_REPOSITORIES_TABLE_QUERY,
     CREATE_REPOSITORY_ANALYTICS_TABLE_QUERY,
     DROP_REPOSITORIES_TABLE_QUERY,
+    DROP_REPOSITORY_ANALYTICS_TABLE_QUERY,
 )
 
 # revision identifiers, used by Alembic.
@@ -34,4 +35,4 @@ def downgrade() -> None:
     connection = op.get_bind()
 
     connection.execute(text(DROP_REPOSITORIES_TABLE_QUERY + " CASCADE;"))
-    connection.execute(text(DROP_REPOSITORIES_TABLE_QUERY + " CASCADE;"))
+    connection.execute(text(DROP_REPOSITORY_ANALYTICS_TABLE_QUERY + " CASCADE;"))
