@@ -1,6 +1,6 @@
 from typing import Type
 
-from core.db.queries import Query, SelectQuery, WhereQuery, OrderByQuery, JoinQuery, FromQuery
+from services.db.queries import Query, SelectQuery, WhereQuery, OrderByQuery, JoinQuery, FromQuery
 
 
 class QueryBuilder:

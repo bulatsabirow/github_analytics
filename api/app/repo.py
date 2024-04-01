@@ -9,10 +9,10 @@ from app.consts import (
     DROP_REPOSITORIES_TABLE_QUERY,
 )
 from app.schema import Repository, RepositoryAnalytics
-from core.db import get_async_session
-from core.db.operators import Equals, Between, Exists
-from core.db.query_builders import QueryBuilder
-from core.db.repo import BaseDatabaseService
+from services.db import get_async_session
+from services.db.operators import Equals, Between, Exists
+from services.db.query_builders import QueryBuilder
+from services.db.repo import BaseDatabaseService
 
 
 class RepositoryDatabaseService(BaseDatabaseService):

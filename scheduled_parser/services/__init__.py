@@ -1,3 +1,3 @@
-from services.fetch import CommitsFetchService, RepositoriesFetchService, BaseFetchService
-from services.database import BaseDatabaseService, RepositoriesDatabaseService, CommitDatabaseService
-from services.parser import GithubAPICommitsAnalyticsParser, GithubAPIRepositoriesParser, GithubAPIParser
+from .fetch import CommitsFetchService, RepositoriesFetchService, BaseFetchService
+from .database import BaseDatabaseService, RepositoriesDatabaseService, CommitDatabaseService
+from .parser import GithubAPICommitsAnalyticsParser, GithubAPIRepositoriesParser, GithubAPIParser

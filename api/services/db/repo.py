@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.db.query_builders import QueryBuilder
+from services.db.query_builders import QueryBuilder
 
 
 class BaseDatabaseService:

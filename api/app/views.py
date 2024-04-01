@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException
 
 from app.enums import ErrorCodes
 from app.repo import (
@@ -15,7 +15,6 @@ from app.schema import (
     RepositoryAnalyticsSortingQueryParams,
     RepositoryAnalytics,
 )
-from core.db.operators import Between, Equals
 
 router = APIRouter(prefix="/api/repos", tags=["repos"])
 

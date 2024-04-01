@@ -8,7 +8,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from app.repo import RepositoryDatabaseService, RepositoryAnalyticsDatabaseService
-from core.db import get_async_session
+from services.db import get_async_session
 from main import app
 
 test_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=True)

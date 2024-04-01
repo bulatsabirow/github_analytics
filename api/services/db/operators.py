@@ -1,6 +1,6 @@
 from typing import Any
 
-from core.db.security import EscapeSQLQueryMetaClass
+from services.db.security import EscapeSQLQueryMetaClass
 
 
 class Operator:
