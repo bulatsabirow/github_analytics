@@ -12,3 +12,4 @@ RUN pip install poetry && poetry config virtualenvs.create false
 RUN poetry install
 
 COPY . .
+EXPOSE 80
