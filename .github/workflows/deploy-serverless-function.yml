@@ -2,8 +2,6 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - './github/workflows/**'
   workflow_dispatch:
 
 jobs:
@@ -30,3 +28,12 @@ jobs:
             DB_HOST=${{ secrets.DB_HOST }} 
             DB_PORT=${{ secrets.DB_PORT }} 
             DB_NAME=${{ secrets.DB_NAME }}
+      - name: create or update timer trigger
+        run: yc serverless trigger create timer \
+            --name github-api-parser-timer-trigger \
+            --cron-expression '0 * ? * * *' \
+            --payload '' \
+            --invoke-function-name github-api-parser \
+            --invoke-function-service-account-id ${{ secrets.SERVICE_ACCOUNT_ID }} \
+            --retry-attempts 1 \
+            --retry-interval 10s
