@@ -1,0 +1,43 @@
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'scheduled_parser/**'
+
+env:
+  IMAGE_NAME: "github-analytics-app"
+jobs:
+  deploy-serverless-container:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: fetch repository code
+        uses: actions/checkout@v4
+
+      - uses: raisultan/ycr-push@main
+        env:
+          KEY_JSON: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          REGISTRY_ID: ${{ secrets.REGISTRY_ID }}
+          DOCKERFILE_PATH: "./deploy/Dockerfile"
+          DOCKERFILE_CONTEXT: ".."
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+
+      - name: Deploy Serverless Container
+        id: deploy-sls-container
+        uses: yc-actions/yc-sls-container-deploy@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+          container-name: github-analytics-app
+          folder-id: ${{ secrets.FOLDER_ID }}
+          revision-service-account-id: ${{ secrets.SERVICE_ACCOUNT_ID }}
+          revision-cores: 1
+          revision-memory: 256Mb
+          revision-core-fraction: 100
+          revision-concurrency: 8
+          revision-image-url: cr.yandex/${{ secrets.REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          revision-execution-timeout: 10
+          revision-env: |
+            DB_PORT: ${{ secrets.DB_PORT }}
+            DB_HOST: ${{ secrets.DB_HOST }}
