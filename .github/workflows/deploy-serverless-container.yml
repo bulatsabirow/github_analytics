@@ -20,7 +20,6 @@ jobs:
           KEY_JSON: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           REGISTRY_ID: ${{ secrets.REGISTRY_ID }}
           DOCKERFILE_PATH: "./deploy/Dockerfile"
-          DOCKERFILE_CONTEXT: ".."
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
           IMAGE_TAG: ${{ github.sha }}
 
