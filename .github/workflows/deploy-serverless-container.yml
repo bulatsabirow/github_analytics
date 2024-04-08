@@ -41,3 +41,5 @@ jobs:
           revision-env: |
             DB_PORT=${{ secrets.DB_PORT }}
             DB_HOST=${{ secrets.DB_HOST }}
+          revision-commands: bash -c "alembic upgrade head && cd api \
+                      && uvicorn main:app --host 0.0.0.0 --port 80"
