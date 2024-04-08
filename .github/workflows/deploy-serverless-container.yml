@@ -32,6 +32,7 @@ jobs:
           folder-id: ${{ secrets.FOLDER_ID }}
           revision-service-account-id: ${{ secrets.SERVICE_ACCOUNT_ID }}
           revision-cores: 1
+          public: true
           revision-memory: 256Mb
           revision-core-fraction: 100
           revision-concurrency: 8
