@@ -13,3 +13,5 @@ RUN poetry install
 
 COPY . .
 EXPOSE 80
+CMD ["bash", "-c", "alembic upgrade head && cd api \
+                      && uvicorn main:app --host 0.0.0.0 --port 80"]
