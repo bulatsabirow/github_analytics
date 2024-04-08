@@ -2,6 +2,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'scheduled_parser/**'
 
 jobs:
   deploy-serverless-function:
@@ -10,7 +12,7 @@ jobs:
     steps:
       - name: fetch repository code
         uses: actions/checkout@v4
-      - name: deploy
+      - name: deploy cloud function
         uses: yc-actions/yc-sls-function@v2
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
