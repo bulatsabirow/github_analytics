@@ -4,6 +4,7 @@ on:
       - master
     paths:
       - 'scheduled_parser/**'
+      - '.github/workflows/deploy-serverless-function.yml'
 
 jobs:
   deploy-serverless-function:
