@@ -37,7 +37,7 @@ jobs:
           revision-core-fraction: 100
           revision-concurrency: 8
           revision-image-url: cr.yandex/${{ secrets.REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          revision-execution-timeout: 10
+          revision-execution-timeout: 600
           revision-env: |
             DB_PORT=${{ secrets.DB_PORT }}
             DB_HOST=${{ secrets.DB_HOST }}

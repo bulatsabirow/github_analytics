@@ -1,5 +1,6 @@
 FROM python:3.11
 ENV PYTHONBUFFERED 1
+ENV PORT 8000
 
 WORKDIR /app
 
@@ -12,6 +13,6 @@ RUN pip install poetry && poetry config virtualenvs.create false
 RUN poetry install
 
 COPY . .
-EXPOSE 80
+EXPOSE $PORT
 CMD ["bash", "-c", "alembic upgrade head && cd api \
-                      && uvicorn main:app --host 0.0.0.0 --port 80"]
+                      && uvicorn main:app --host 0.0.0.0 --port $PORT"]
