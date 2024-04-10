@@ -22,6 +22,7 @@ jobs:
           memory: '256Mb'
           entrypoint: 'index.handler'
           source-root: './scheduled_parser'
+          service-account: ${{ secrets.SERVICE_ACCOUNT_ID }}
           execution-timeout: '600'
           environment: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} 
