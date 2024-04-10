@@ -3,10 +3,10 @@ import http
 
 from aiohttp import ClientSession
 
-from db import async_session_maker
+from db import get_async_session_maker
 from services import CommitDatabaseService, CommitsFetchService, RepositoriesDatabaseService, RepositoriesFetchService
 from services.parser import GithubAPIRepositoriesParser, GithubAPICommitsAnalyticsParser
-from settings import GITHUB_TOKEN
+from settings import GITHUB_TOKEN, DB_USER, DB_HOST, DB_PORT, DB_NAME
 
 # maximum pages count for each repository which will be parsed
 UNAUTHENTICATED_PAGINATION_LIMIT = 2
@@ -16,7 +16,9 @@ AUTHENTICATED_PAGINATION_LIMIT = 41
 
 async def handler(event, context):
     auth_headers = {"Authorization": f"Bearer {GITHUB_TOKEN}"} if GITHUB_TOKEN else {}
-
+    DB_PASSWORD = context.token.get("access_token")
+    DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    async_session_maker = get_async_session_maker(DATABASE_URL)
     async with (ClientSession(headers=auth_headers) as http_session):
         async with async_session_maker() as db_session, db_session.begin():
             repos_fetch_service = RepositoriesFetchService()

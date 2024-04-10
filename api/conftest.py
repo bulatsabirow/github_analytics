@@ -11,6 +11,7 @@ from app.repo import RepositoryDatabaseService, RepositoryAnalyticsDatabaseServi
 from services.db import get_async_session
 from main import app
 
+# TODO use PostgreSQL test database
 test_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=True)
 test_session_maker = async_sessionmaker(expire_on_commit=False, autocommit=False, autoflush=False, bind=test_engine)
 

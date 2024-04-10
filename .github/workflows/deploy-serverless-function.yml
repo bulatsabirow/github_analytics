@@ -28,7 +28,6 @@ jobs:
           environment: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} 
             DB_USER=${{ secrets.DB_USER }} 
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_HOST=${{ secrets.DB_HOST }} 
+            DB_HOST=${{ secrets.PROXY_DB_HOST }} 
             DB_PORT=${{ secrets.DB_PORT }} 
-            DB_NAME=${{ secrets.DB_NAME }}
+            DB_NAME=${{ secrets.PROXY_DB_NAME }}

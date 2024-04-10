@@ -4,6 +4,7 @@ on:
       - master
     paths-ignore:
       - 'scheduled_parser/**'
+      - '.github/workflows/deploy-serverless-function.yml'
 
 env:
   IMAGE_NAME: "github-analytics-app"
