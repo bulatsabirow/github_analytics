@@ -31,10 +31,9 @@ async def handler(event, context):
             # truncate table 'repo_analytics' as data stored in it already irrelevant
             await commits_database_service.truncate_table()
 
-        for page in range(1, AUTHENTICATED_PAGINATION_LIMIT if auth_headers else UNAUTHENTICATED_PAGINATION_LIMIT):
-            # retrieve data from GitHub API about commit statistics and
-            # load it into database on each iteration
-            async with async_session_maker() as db_session, db_session.begin():
+            for page in range(1, AUTHENTICATED_PAGINATION_LIMIT if auth_headers else UNAUTHENTICATED_PAGINATION_LIMIT):
+                # retrieve data from GitHub API about commit statistics and
+                # load it into database on each iteration
                 commits_fetch_service = CommitsFetchService()
                 commits_database_service = CommitDatabaseService(db_session)
                 github_commits_parser = GithubAPICommitsAnalyticsParser(
