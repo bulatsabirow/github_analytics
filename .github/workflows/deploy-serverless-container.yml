@@ -9,14 +9,38 @@ on:
 env:
   IMAGE_NAME: "github-analytics-app"
 jobs:
-  deploy-serverless-container:
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - name: fetch repository code
         uses: actions/checkout@v4
 
-      - uses: raisultan/ycr-push@main
+      - name: run tests
+        run: pytest
+
+  migrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: fetch repository code
+        uses: actions/checkout@v4
+
+      - name: run tests
+        run: alembic upgrade head
+
+  deploy-serverless-container:
+    runs-on: ubuntu-latest
+    needs:
+      - migrate
+      - test
+
+    steps:
+      - name: fetch repository code
+        uses: actions/checkout@v4
+
+      - name: push Docker image to Yandex Container Registry
+        uses: raisultan/ycr-push@main
         env:
           KEY_JSON: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           REGISTRY_ID: ${{ secrets.REGISTRY_ID }}
@@ -24,7 +48,7 @@ jobs:
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
           IMAGE_TAG: ${{ github.sha }}
 
-      - name: Deploy Serverless Container
+      - name: Deploy to Serverless Container
         id: deploy-sls-container
         uses: yc-actions/yc-sls-container-deploy@v2
         with:
