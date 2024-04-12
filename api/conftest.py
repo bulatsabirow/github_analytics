@@ -6,14 +6,32 @@ import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from testcontainers.postgres import PostgresContainer
 
 from app.repo import RepositoryDatabaseService, RepositoryAnalyticsDatabaseService
 from services.db import get_async_session
 from main import app
 
-# TODO use PostgreSQL test database
-test_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=True)
-test_session_maker = async_sessionmaker(expire_on_commit=False, autocommit=False, autoflush=False, bind=test_engine)
+
+@pytest.fixture(scope="session")
+def test_db():
+    db = PostgresContainer(image="postgres:14-alpine", driver="asyncpg")
+    with db:
+        yield db
+
+
+@pytest.fixture(scope="session")
+def test_engine(test_db):
+    return create_async_engine(test_db.get_connection_url())
+
+
+@pytest.fixture(scope="session")
+def test_session_maker(test_engine):
+    return async_sessionmaker(expire_on_commit=False, autocommit=False, autoflush=False, bind=test_engine)
+
+
+# test_engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=True)
+# test_session_maker = async_sessionmaker(expire_on_commit=False, autocommit=False, autoflush=False, bind=test_engine)
 
 
 @contextmanager
@@ -39,7 +57,7 @@ async def drop_tables(session: AsyncSession):
 
 
 @pytest.fixture
-async def test_session():
+async def test_session(test_session_maker):
     async with test_session_maker() as test_session:
         # __enter__ - create test tables and open new database session
         await create_tables(test_session)
