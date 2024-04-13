@@ -9,8 +9,48 @@ on:
 env:
   IMAGE_NAME: "github-analytics-app"
 jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: fetch repository code
+        uses: actions/checkout@v4
+
+      - name: setup Python3:11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install required dependencies
+        run: pip install poetry && poetry config virtualenvs.create false && poetry install
+
+      - name: run tests
+        run: pytest -s -v
+#      - name: enter in Docker container and run tests
+#        run: docker-compose -f './deploy/docker-compose.test.yml' exec app ./deploy/wait-for-it.sh postgres:5432 && pytest -s -v
+
+  migrations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: fetch repository code
+        uses: actions/checkout@v4
+
+      - name: run Docker container and make migrations
+        run: docker run --rm -it 
+              -e DB_NAME=${{ secrets.DB_NAME }} 
+              -e DB_USER=${{ secrets.DB_USER }} 
+              -e DB_HOST=${{ secrets.DB_HOST }}
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} 
+              -e DB_PORT=${{ secrets.DB_PORT }} 
+              $(docker build -f './deploy/Dockerfile' -q .) 
+              alembic upgrade head
+
   deploy-serverless-container:
     runs-on: ubuntu-latest
+    needs:
+      - tests
+      - migrations
 
     steps:
       - name: fetch repository code
