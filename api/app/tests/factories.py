@@ -1,14 +1,14 @@
-from typing import ClassVar, Type, Any
+import random
+from typing import ClassVar, Type
 
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schema import RepositoryAnalytics
-from app.tests.schema import TestRepository
+from app.tests.schema import RepositoryTest, RepositoryAnalyticsTest
 
 
-class TestFactory:
+class BaseFactory:
     test_model: ClassVar[Type[BaseModel]] = BaseModel
 
     def __init__(self, session: AsyncSession, *args, **kwargs):
@@ -22,8 +22,8 @@ class TestFactory:
         return NotImplemented
 
 
-class TestRepositoryFactory(TestFactory):
-    test_model = TestRepository
+class RepositoryFactory(BaseFactory):
+    test_model = RepositoryTest
 
     async def create_batch(self, count: int = 1):
         dummy_data = [self.test_model(position_cur=i).model_dump() for i in range(1, count + 1)]
@@ -55,14 +55,15 @@ class TestRepositoryFactory(TestFactory):
             ),
             dummy_data,
         )
+
         return dummy_data
 
 
-class TestRepositoryAnalyticsFactory(TestFactory):
-    test_model = RepositoryAnalytics
+class RepositoryAnalyticsFactory(BaseFactory):
+    test_model = RepositoryAnalyticsTest
 
     async def create_batch(self, count: int = 1):
-        dummy_data = [self.test_model(position=i).model_dump() for i in range(1, count + 1)]
+        dummy_data = [self.test_model(position=random.randint(1, 100)).model_dump() for _ in range(1, count + 1)]
         await self._session.execute(
             text(
                 """
@@ -72,3 +73,5 @@ class TestRepositoryAnalyticsFactory(TestFactory):
             ),
             dummy_data,
         )
+
+        return dummy_data

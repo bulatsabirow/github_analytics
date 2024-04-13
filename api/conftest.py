@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from testcontainers.postgres import PostgresContainer
 
 from app.repo import RepositoryDatabaseService, RepositoryAnalyticsDatabaseService
-from services.db import get_async_session
 from main import app
+from services.db import get_async_session
 
 
 @pytest.fixture(scope="session")
@@ -22,7 +22,7 @@ def test_db():
 
 @pytest.fixture(scope="session")
 def test_engine(test_db):
-    return create_async_engine(test_db.get_connection_url())
+    return create_async_engine(test_db.get_connection_url(), echo=True)
 
 
 @pytest.fixture(scope="session")
@@ -50,10 +50,12 @@ def event_loop():
 
 async def create_tables(session: AsyncSession):
     await RepositoryDatabaseService(session).create_table()
+    await RepositoryAnalyticsDatabaseService(session).create_table()
 
 
 async def drop_tables(session: AsyncSession):
-    await RepositoryDatabaseService(session).drop_table(is_cascade=False)
+    await RepositoryAnalyticsDatabaseService(session).drop_table(is_cascade=False)
+    await RepositoryDatabaseService(session).drop_table(is_cascade=True)
 
 
 @pytest.fixture

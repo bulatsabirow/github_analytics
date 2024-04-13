@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.consts import (
     CREATE_REPOSITORIES_TABLE_QUERY,
     DROP_REPOSITORIES_TABLE_QUERY,
+    CREATE_REPOSITORY_ANALYTICS_TABLE_QUERY,
+    DROP_REPOSITORY_ANALYTICS_TABLE_QUERY,
 )
 from app.schema import Repository, RepositoryAnalytics
 from services.db import get_async_session
@@ -35,6 +37,14 @@ class RepositoryDatabaseService(BaseDatabaseService):
 class RepositoryAnalyticsDatabaseService(BaseDatabaseService):
     table_name = "repo_analytics"
     pydantic_model = RepositoryAnalytics
+
+    async def create_table(self):
+        create_table_query = CREATE_REPOSITORY_ANALYTICS_TABLE_QUERY
+        await self.session.execute(text(create_table_query + ";"))
+
+    async def drop_table(self, is_cascade=True):
+        drop_table_query = DROP_REPOSITORY_ANALYTICS_TABLE_QUERY + f"{'CASCADE' if is_cascade else ''};"
+        await self.session.execute(text(drop_table_query))
 
     async def check_repository_exists(self, owner, repo):
         query = QueryBuilder().select(

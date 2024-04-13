@@ -5,13 +5,12 @@ from typing import Optional
 from faker import Faker
 from pydantic import BaseModel, Field, computed_field
 
-
 fake = Faker()
 
 
-class TestRepository(BaseModel):
+class RepositoryTest(BaseModel):
     position_cur: int
-    owner: str = Field(default_factory=fake.name)
+    owner: str = Field(default_factory=fake.first_name)
 
     # 50% - None, 50% - some number from range(1, 101)
     position_prev: Optional[int] = Field(
@@ -29,11 +28,20 @@ class TestRepository(BaseModel):
     @computed_field
     @property
     def repo(self) -> str:
-        return "/".join((fake.name(), self.owner))
+        return "/".join((fake.unique.first_name(), self.owner))
 
 
-class TestRepositoryAnalytics(BaseModel):
+class RepositoryAnalyticsTest(BaseModel):
     position: int
-    date: datetime.date = Field(default_factory=lambda: fake.unique.date_between())
+    date: datetime.date = Field(default_factory=fake.unique.date_between)
     commits: int = Field(default_factory=lambda: fake.random_int(10, 20))
     authors: list[str] = Field(default_factory=lambda: [fake.unique.name() for _ in range(10)])
+
+
+class RepositoryAnalyticsSortingQueryParamsTest(BaseModel):
+    since: datetime.date = Field(default_factory=fake.unique.date_between)
+
+    @computed_field
+    @property
+    def until(self) -> datetime.date:
+        return fake.unique.date_between(start_date=self.since)
