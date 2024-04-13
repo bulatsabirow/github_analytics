@@ -14,5 +14,6 @@ RUN poetry install
 
 COPY . .
 EXPOSE $PORT
-CMD ["bash", "-c", "alembic upgrade head && cd api \
-                      && uvicorn main:app --host 0.0.0.0 --port $PORT"]
+
+CMD ["bash", "-c", "cd api && \
+                    uvicorn main:app --host 0.0.0.0 --port $PORT"]
